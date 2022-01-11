@@ -6,7 +6,10 @@ def connect_to_mongo(curr_time=None,  client="mongodb://localhost:27017", tgt_db
     connection = pymongo.MongoClient(client)
     db = connection[tgt_db]
     table = db[tgt_coll]
-    db_data = pd.DataFrame(list(table.find({})))
+    if curr_time is not None:
+        db_data = pd.DataFrame(list(table.find({'timestamp':{"$lt":curr_time}})))
+    else:
+        db_data = pd.DataFrame(list(table.find({})))
     return db_data, connection
 
 
