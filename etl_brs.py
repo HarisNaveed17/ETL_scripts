@@ -1,10 +1,9 @@
 import pandas as pd
-# from datetime import datetime, timezone
+from datetime import datetime
 from utils import *
 
 
 def ad_dur(df):
-    
     """Calculates the duration time of each ad for each channel in the raw data
 
     Args:
@@ -34,8 +33,16 @@ def ad_dur(df):
         yield proc_chnl_data
 
 
-def run_brs_pipeline():
-    brand_data, connector = connect_to_mongo()
+def run_brs_pipeline(time_filter=None):
+    """ connects to MongoDB database, pulls the raw inference data, transforms it into ad duration data
+        and saves it in DWH. Then moves the raw data to annotator databases 
+        and then deletes it from the OLTP databases
+
+    Args:
+        time_filter (datetime object, optional): Used to filter raw data on the basis of time.
+         Defaults to None.
+    """
+    brand_data, connector = connect_to_mongo(curr_time=time_filter)
     proc_brs_data = ad_dur(brand_data)
     push_to_mongo(connector, brand_data, 'annotator_db', 'brs')
     delete_collection(connector, 'testdata', 'brs')
@@ -45,9 +52,8 @@ def run_brs_pipeline():
 
 if __name__ == '__main__':
     # current_t = datetime.datetime.utcnow()
-    # current_t = datetime(2021, 1, 5, 18, 0, tzinfo=timezone.utc)
-    # current_t = pd.Timestamp('2021-1-5 18:00:00.100').tz_localize(tz='UTC')
-    run_brs_pipeline()
+    current_t = datetime(2022, 1, 5, 17, 45)
+    # current_t = pd.Timestamp('2022-01-5 17:45:00').isoformat()
+    # current_t = datetime.strptime("2021-01-05T17:45:00.000Z", "%Y-%m-%dT%H:%M:%S.000Z")
+    run_brs_pipeline(current_t)
     print(-1)
-    
-
