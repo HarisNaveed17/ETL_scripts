@@ -1,6 +1,6 @@
-import pandas as pd
 from datetime import datetime
 from utils import *
+import pandas as pd
 
 
 def ad_dur(df):
@@ -14,8 +14,8 @@ def ad_dur(df):
     """
 
     brand_dict = {}
-    df.drop('_id', axis=1, inplace=True)
-    df['brsStatus'] = 0
+    # df.drop('_id', axis=1, inplace=True)
+    # df['brsStatus'] = 0
     df = df.rename({'timestamp': 'start_time'}, axis=1)
     brand_names = pd.unique(df['brsInfer'])
     for i, j in enumerate(brand_names):
@@ -30,7 +30,7 @@ def ad_dur(df):
         proc_chnl_data.drop('brand_mapping', axis=1, inplace=True)
         proc_chnl_data['end_time'] = proc_chnl_data['start_time'].shift(
             -1).fillna(channel_data.iloc[-1].start_time)
-        yield proc_chnl_data
+        yield proc_chnl_data, channel
 
 
 def run_brs_pipeline(time_filter=None):
@@ -43,17 +43,15 @@ def run_brs_pipeline(time_filter=None):
          Defaults to None.
     """
     brand_data, connector = connect_to_mongo(curr_time=time_filter)
-    proc_brs_data = ad_dur(brand_data)
+    proc_brs_data, chnl = ad_dur(brand_data)
     push_to_mongo(connector, brand_data, 'annotator_db', 'brs')
     delete_collection(connector, 'testdata', 'brs')
     for chnl_data in proc_brs_data:
-        push_to_mongo(connector, chnl_data, 'data_warehouse', 'dwh_brs')
+        push_to_mongo(connector, chnl_data, 'data_warehouse', chnl)
 
 
 if __name__ == '__main__':
     # current_t = datetime.datetime.utcnow()
     current_t = datetime(2022, 1, 5, 17, 45)
-    # current_t = pd.Timestamp('2022-01-5 17:45:00').isoformat()
-    # current_t = datetime.strptime("2021-01-05T17:45:00.000Z", "%Y-%m-%dT%H:%M:%S.000Z")
-    run_brs_pipeline(current_t)
+    run_brs_pipeline()
     print(-1)
