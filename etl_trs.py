@@ -1,11 +1,17 @@
-from utils import *
 from datetime import datetime
+from utils import *
+
 
 def run_trs_pipeline(time_filter=None):
-    asr_data, connector = connect_to_mongo(time_filter, tgt_coll='trs')
-    push_to_mongo(connector, asr_data, 'annotator_db', 'trs')
+    trs_data, connector = connect_to_mongo(time_filter, tgt_coll='trs')
+    push_to_mongo(connector, trs_data, 'annotator_db', 'trs')
     delete_collection(connector, 'testdata', 'trs')
-    push_to_mongo(connector, asr_data, 'data_warehouse', 'dwh_trs')
+    push_to_mongo(connector, trs_data, 'data_warehouse', 'dwh_trs')
+    trs_data.dropna(inplace=True)
+    ticker_words, chnl = extend_inferdata(
+        trs_data, infer_column='trsInfer', other_cols=['timestamp', 'channelName'])
+    for ticker in ticker_words:
+        push_to_mongo(connector, ticker, 'data_warehouse', chnl)
 
 
 if __name__ == '__main__':
