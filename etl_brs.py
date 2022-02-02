@@ -1,6 +1,7 @@
 from datetime import datetime
 from utils import *
 import pandas as pd
+import json
 
 
 def ad_dur(df):
@@ -30,10 +31,11 @@ def ad_dur(df):
         proc_chnl_data.drop('brand_mapping', axis=1, inplace=True)
         proc_chnl_data['end_time'] = proc_chnl_data['start_time'].shift(
             -1).fillna(channel_data.iloc[-1].start_time)
+        channel = channel + '_brs'
         yield proc_chnl_data, channel
 
 
-def run_brs_pipeline(time_filter=None):
+def run_brs_pipeline(oltp_db, ann_db, dwh_db, time_filter=None, client='mongodb://localhost:27017'):
     """ connects to MongoDB database, pulls the raw inference data, transforms it into ad duration data
         and saves it in DWH. Then moves the raw data to annotator databases 
         and then deletes it from the OLTP databases
@@ -42,16 +44,27 @@ def run_brs_pipeline(time_filter=None):
         time_filter (datetime object, optional): Used to filter raw data on the basis of time.
          Defaults to None.
     """
-    brand_data, connector = connect_to_mongo(curr_time=time_filter)
-    proc_brs_data, chnl = ad_dur(brand_data)
-    push_to_mongo(connector, brand_data, 'annotator_db', 'brs')
-    delete_collection(connector, 'testdata', 'brs')
-    for chnl_data in proc_brs_data:
-        push_to_mongo(connector, chnl_data, 'data_warehouse', chnl)
+    with open('dbconfig.json') as conf_file:
+        settings = json.load(conf_file)
+        tgt_coll_oltp = settings['brand']['tgt_coll_oltp']
+        tgt_coll_ann = settings['brand']['tgt_coll_ann']
+
+    brand_data, connector = pull_from_mongo(time_filter, client, oltp_db, tgt_coll_oltp)
+    proc_brs_data = ad_dur(brand_data)
+    push_to_mongo(connector, brand_data, ann_db, tgt_coll_ann)
+    delete_collection(connector, oltp_db, tgt_coll_oltp, curr_time=time_filter)
+    for chnl_data, chnl in proc_brs_data:
+        push_to_mongo(connector, chnl_data, dwh_db, chnl)
 
 
 if __name__ == '__main__':
+    with open('dbconfig.json', 'r') as config_file:
+        data = json.load(config_file)
+        oltp_db = data['oltp_dbname']
+        ann_db = data['ann_dbname']
+        dwh_db = data['dwh_dbname']
+        client = data['client']
     # current_t = datetime.datetime.utcnow()
     current_t = datetime(2022, 1, 5, 17, 45)
-    run_brs_pipeline()
+    run_brs_pipeline(oltp_db, ann_db, dwh_db, time_filter=None, client=client)
     print(-1)

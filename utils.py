@@ -4,9 +4,11 @@ from ast import literal_eval
 
 # CRUD (CREATE, READ, UPDATE, DELETE) OPERATION FUNCTIONS
 
+def connect_to_mongo(client="mongodb://localhost:27017"):
+    return pymongo.MongoClient(client)
 
-def connect_to_mongo(curr_time=None,  client="mongodb://localhost:27017", tgt_db='testdata', tgt_coll='brs'):
-    connection = pymongo.MongoClient(client)
+def pull_from_mongo(curr_time=None,  client="mongodb://localhost:27017", tgt_db='testdata', tgt_coll='brs'):
+    connection = connect_to_mongo(client)
     db = connection[tgt_db]
     table = db[tgt_coll]
     if curr_time is not None:
@@ -22,11 +24,13 @@ def push_to_mongo(connection, df, tgt_db, tgt_coll):
     dwh[tgt_coll].insert_many(df.to_dict('records'))
 
 
-def delete_collection(connection, tgt_db, tgt_coll):
+def delete_collection(connection, tgt_db, tgt_coll, curr_time=None):
     db = connection[tgt_db]
     table = db[tgt_coll]
-    del_data = table.delete_many({})
-
+    if curr_time is not None:
+        del_data = table.delete_many({'timestamp':{'$lt':curr_time}})
+    else:
+        del_data = table.delete_many({})
 
 # TRANSFORMATION FUNCTIONS USED BY TWO OR MORE MODULES (ASR, BRS, FRS, TRS)
 
@@ -55,17 +59,18 @@ def extend_inferdata(df, infer_column, other_column=None, mode='frs'):
         chl_df = df[df['channelName'] == channel].reset_index(drop=True)
         if mode == 'frs':
             new_df = chl_df.explode(infer_column).reset_index(drop=True)
+            channel = channel + f'_{mode}'
     
         if mode == 'trs':
             chl_df['Infer_split'] = chl_df[infer_column].apply(lambda x: ' '.join(x).split(' '))
             new_df = chl_df.explode('Infer_split').reset_index(drop=True)
+            channel = channel + f'_{mode}'
 
         yield new_df, channel
 
 # if __name__ == '__main__':
-#     df = pd.read_csv('trs2.csv')
-#     df.dropna(inplace=True)
-#     ndf = extend_inferdata(df, 'trsInfer', ['timestamp', 'channelName'], mode='trs')
-#     for i in ndf:
-#         len(i)
-#     print(-1)
+#     pass
+    # df = pd.read_csv('trs2.csv')
+    # connection = pymongo.MongoClient('192.168.0.102:27017')
+    # push_to_mongo(connection, df, tgt_db='haris_db', tgt_coll='trs2')
+    # print(-1)

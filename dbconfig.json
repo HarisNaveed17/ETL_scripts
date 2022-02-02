@@ -1,0 +1,33 @@
+{	
+	"database":{
+			"client":"mongodb://localhost:27017",
+			"oltp_dbname":"testdata",
+			"ann_dbname":"annotator_db",
+			"dwh_dbname":"data_warehouse"
+		   },
+		   
+		   
+	"speech":{
+			"tgt_coll_oltp":"asr",
+			"tgt_coll_ann":"asr"
+	
+		 },
+	
+	"face":{
+			"tgt_coll_oltp":"frs",
+			"tgt_coll_ann":"frs"
+		},
+		
+	"brand":{
+			"tgt_coll_oltp":"brs",
+			"tgt_coll_ann":"brs"
+		},
+	
+	"ticker":{
+			"tgt_coll_oltp":"trs",
+			"tgt_coll_ann":"trs"
+		}   
+		   	 
+}
+			
+			
