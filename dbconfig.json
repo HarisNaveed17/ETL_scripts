@@ -4,7 +4,8 @@
 			"oltp_dbname":"testdata",
 			"ann_dbname":"annotator_db",
 			"dwh_dbname":"data_warehouse",
-			"time_interval_seconds":30
+			"time_interval_seconds":30,
+			"time_filter":true
 		   },
 		   
 		   

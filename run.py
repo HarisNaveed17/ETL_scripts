@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from datetime import datetime
+from time import time
 from apscheduler.schedulers.blocking import BlockingScheduler
 from apscheduler.jobstores.mongodb import MongoDBJobStore
 from apscheduler.executors.pool import ProcessPoolExecutor
@@ -37,12 +38,16 @@ if __name__ == "__main__":
             dwh_db = data['database']['dwh_dbname']
             client = data['database']['client']
             interval_length = data['database']['time_interval_seconds']
+            time_filter = data['database']['time_filter']
 
     sched = BlockingScheduler(jobstores=jobstores, executors=executors, job_defaults=job_defaults)
     sched.configure()
     @sched.scheduled_job('interval', seconds=interval_length)
     def run():
-        current_t = datetime.utcnow()
+        if time_filter:
+            current_t = datetime.utcnow()
+        else:
+            current_t = None
         run_brs_pipeline(oltp_db, ann_db, dwh_db, time_filter=current_t, client=client)
         run_asr_pipeline(oltp_db, ann_db, dwh_db, time_filter=current_t, client=client)
         run_frs_pipeline(oltp_db, ann_db, dwh_db, time_filter=current_t, client=client)
