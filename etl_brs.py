@@ -60,10 +60,10 @@ def run_brs_pipeline(oltp_db, ann_db, dwh_db, time_filter=None, client='mongodb:
 if __name__ == '__main__':
     with open('dbconfig.json', 'r') as config_file:
         data = json.load(config_file)
-        oltp_db = data['oltp_dbname']
-        ann_db = data['ann_dbname']
-        dwh_db = data['dwh_dbname']
-        client = data['client']
+        oltp_db = data['database']['oltp_dbname']
+        ann_db = data['database']['ann_dbname']
+        dwh_db = data['database']['dwh_dbname']
+        client = data['database']['client']
     # current_t = datetime.datetime.utcnow()
     current_t = datetime(2022, 1, 5, 17, 45)
     run_brs_pipeline(oltp_db, ann_db, dwh_db, time_filter=None, client=client)
