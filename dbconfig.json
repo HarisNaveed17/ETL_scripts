@@ -3,7 +3,8 @@
 			"client":"mongodb://localhost:27017",
 			"oltp_dbname":"testdata",
 			"ann_dbname":"annotator_db",
-			"dwh_dbname":"data_warehouse"
+			"dwh_dbname":"data_warehouse",
+			"time_interval_seconds":30
 		   },
 		   
 		   
