@@ -1,0 +1,16 @@
+{
+
+	"executors":{
+	
+			"process_executors":5 
+	
+		    },
+	
+	"job_defaults":{
+	
+			"coalesce":false,
+			"max_instances":5
+	
+		    }
+	
+}
