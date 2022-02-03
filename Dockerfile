@@ -14,5 +14,6 @@ COPY ./etl_trs.py ./etl_trs.py
 COPY ./utils.py ./utils.py
 COPY ./run.py ./run.py
 COPY ./dbconfig.json ./dbconfig.json
+COPY ./sched_config.json ./sched_config.json
 RUN chmod 777 ./run.py
 CMD ["./run.py"]
