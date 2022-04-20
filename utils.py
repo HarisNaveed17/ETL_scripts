@@ -1,7 +1,6 @@
-from matplotlib import ticker
 import pymongo
 import pandas as pd
-from ast import literal_eval
+
 
 # CRUD (CREATE, READ, UPDATE, DELETE) OPERATION FUNCTIONS
 
@@ -37,6 +36,12 @@ def delete_collection(connection, tgt_db, tgt_coll, curr_time=None):
 
 # TRANSFORMATION FUNCTIONS USED BY TWO OR MORE MODULES (ASR, BRS, FRS, TRS)
 
+
+def combine_infer_text(ticker_list):
+        infer_list = []
+        for output in ticker_list:
+            infer_list.append(output['infer'])
+        return infer_list
 
 # def extend_inferdata(df, infer_column, other_column=None, mode='frs'):
 #     """Duplicates the raw data entries according to the number of unique inference outputs present in 
@@ -74,33 +79,5 @@ def delete_collection(connection, tgt_db, tgt_coll, curr_time=None):
 
 
 
-def combine_infer_text(ticker_list):
-        infer_list = []
-        for output in ticker_list:
-            infer_list.append(output['infer'])
-        return infer_list
-    
-
 if __name__ == '__main__':
-    # df = pd.read_csv('trs2_new.csv')
-    # df['output'] = df['output'].apply(lambda x: literal_eval(x))
-    # df['textInfer'] = df['output'].apply(lambda x: combine_infer_text(x))
-    # ndf = df.explode('textInfer').reset_index(drop=True)
-    
-            
     print(-1)
-    # lab_cols = [lab for lab in df.columns if 'Label' in lab]
-    # other_cols = ['channelName', 'channelId', 'timestamp', 'filePath']
-    # other_cols.extend(lab_cols)
-    # ndf = df[other_cols]
-    # ndf['combined'] = ndf[lab_cols].values.tolist()
-    # fdf = ndf.explode('combined').drop(lab_cols, axis=1)
-    # ndf.fillna('redundant', inplace=True)
-    
-
-
-
-
-
-    # connection = pymongo.MongoClient('192.168.0.102:27017')
-    # push_to_mongo(connection, df, tgt_db='haris_db', tgt_coll='trs2')
