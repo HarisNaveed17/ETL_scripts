@@ -5,7 +5,7 @@ import json
 
 def extend_inferdata_text(df, infer_column, other_column):
     if other_column is not None:
-        other_column.extend(infer_column)
+        other_column.append(infer_column)
         df = df[other_column]
 
     # df[infer_column] = df[infer_column].apply(lambda x: literal_eval(x)) turn this on if working with a csv on local machine
