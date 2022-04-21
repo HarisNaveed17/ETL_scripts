@@ -1,7 +1,7 @@
 {	
 	"database":{
-			"client":"mongodb://localhost:27017",
-			"oltp_dbname":"testdata",
+			"client":"mongodb://10.10.56.115:27017",
+			"oltp_dbname":"OLTP",
 			"ann_dbname":"annotator_db",
 			"dwh_dbname":"data_warehouse",
 			"time_interval_seconds":30,
@@ -16,17 +16,17 @@
 		 },
 	
 	"face":{
-			"tgt_coll_oltp":"frs",
+			"tgt_coll_oltp":"frs2",
 			"tgt_coll_ann":"frs"
 		},
 		
 	"brand":{
-			"tgt_coll_oltp":"brs",
+			"tgt_coll_oltp":"brs2",
 			"tgt_coll_ann":"brs"
 		},
 	
 	"ticker":{
-			"tgt_coll_oltp":"trs",
+			"tgt_coll_oltp":"trs2",
 			"tgt_coll_ann":"trs"
 		}   
 		   	 
