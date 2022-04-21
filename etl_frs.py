@@ -3,7 +3,7 @@ from utils import *
 import json
 
 
-def extend_inferdata_face(df, infer_column_tag, other_column=None):
+def extend_inferdata_face(df, infer_column, other_column=None):
     """extends labels of detected faces from multiple columns to multiple rows against the same frame and
     timestamp (duplicates rows equal to number of labelled faces)
 
@@ -17,14 +17,14 @@ def extend_inferdata_face(df, infer_column_tag, other_column=None):
         tuple: a tuple of the processed dataframe and channel name
     """
     
-    lab_cols = [lab for lab in df.columns if infer_column_tag in lab]
+    lab_cols = [lab for lab in df.columns if infer_column in lab]
     if other_column is not None:
         other_column.extend(lab_cols)
         ndf = df[other_column]
     ndf['combined'] = ndf[lab_cols].values.tolist()
     ndf.drop(lab_cols, axis=1, inplace=True)
     for channel in pd.unique(df['channelName']):
-        chl_df = df[df['channelName'] == channel].reset_index(drop=True)
+        chl_df = ndf[ndf['channelName'] == channel].reset_index(drop=True)
         new_df = chl_df.explode('combined').reset_index(drop=True)
         channel = channel + f'_frs'
         yield new_df, channel
